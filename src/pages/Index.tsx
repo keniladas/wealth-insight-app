@@ -8,6 +8,9 @@ import TransactionForm from '@/components/TransactionForm';
 import BudgetManager from '@/components/BudgetManager';
 import InvestmentTracker from '@/components/InvestmentTracker';
 import Reports from '@/components/Reports';
+import FinancialGoals from '@/components/FinancialGoals';
+import FinancialCalculator from '@/components/FinancialCalculator';
+import FinancialAlerts from '@/components/FinancialAlerts';
 import AuthModal from '@/components/AuthModal';
 import { useFinanceData } from '@/hooks/useFinanceData';
 import { useAuth } from '@/hooks/useAuth';
@@ -16,7 +19,17 @@ import { LogOut, User } from 'lucide-react';
 const Index = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { user, loading, logout } = useAuth();
-  const { transactions, budgets, investments, addTransaction, addBudget, addInvestment } = useFinanceData();
+  const { 
+    transactions, 
+    budgets, 
+    investments, 
+    goals,
+    addTransaction, 
+    addBudget, 
+    addInvestment,
+    addGoal,
+    updateGoalProgress
+  } = useFinanceData();
 
   console.log('Index render - User:', user, 'Loading:', loading);
 
@@ -45,7 +58,7 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <div className="grid md:grid-cols-4 gap-6 mb-12">
               <Card className="p-6 border-0 shadow-lg bg-white/80 backdrop-blur-sm">
                 <div className="text-blue-600 mb-4">
                   <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto">
@@ -62,8 +75,8 @@ const Index = () => {
                     🎯
                   </div>
                 </div>
-                <h3 className="font-semibold mb-2">Controle de Orçamento</h3>
-                <p className="text-gray-600 text-sm">Defina metas e receba alertas inteligentes</p>
+                <h3 className="font-semibold mb-2">Metas Financeiras</h3>
+                <p className="text-gray-600 text-sm">Defina e acompanhe suas metas financeiras</p>
               </Card>
 
               <Card className="p-6 border-0 shadow-lg bg-white/80 backdrop-blur-sm">
@@ -74,6 +87,16 @@ const Index = () => {
                 </div>
                 <h3 className="font-semibold mb-2">Gestão de Investimentos</h3>
                 <p className="text-gray-600 text-sm">Acompanhe sua carteira de investimentos</p>
+              </Card>
+
+              <Card className="p-6 border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                <div className="text-orange-600 mb-4">
+                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto">
+                    🧮
+                  </div>
+                </div>
+                <h3 className="font-semibold mb-2">Calculadora Financeira</h3>
+                <p className="text-gray-600 text-sm">Calcule empréstimos, investimentos e poupanças</p>
               </Card>
             </div>
 
@@ -122,11 +145,14 @@ const Index = () => {
 
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-8 bg-white/80 backdrop-blur-sm">
+          <TabsList className="grid w-full grid-cols-8 mb-8 bg-white/80 backdrop-blur-sm">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="transactions">Transações</TabsTrigger>
             <TabsTrigger value="budget">Orçamento</TabsTrigger>
             <TabsTrigger value="investments">Investimentos</TabsTrigger>
+            <TabsTrigger value="goals">Metas</TabsTrigger>
+            <TabsTrigger value="calculator">Calculadora</TabsTrigger>
+            <TabsTrigger value="alerts">Alertas</TabsTrigger>
             <TabsTrigger value="reports">Relatórios</TabsTrigger>
           </TabsList>
 
@@ -154,6 +180,26 @@ const Index = () => {
             <InvestmentTracker 
               investments={investments}
               onAddInvestment={addInvestment}
+            />
+          </TabsContent>
+
+          <TabsContent value="goals">
+            <FinancialGoals 
+              goals={goals}
+              onAddGoal={addGoal}
+              onUpdateProgress={updateGoalProgress}
+            />
+          </TabsContent>
+
+          <TabsContent value="calculator">
+            <FinancialCalculator />
+          </TabsContent>
+
+          <TabsContent value="alerts">
+            <FinancialAlerts 
+              transactions={transactions}
+              budgets={budgets}
+              goals={goals}
             />
           </TabsContent>
 
