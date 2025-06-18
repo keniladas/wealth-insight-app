@@ -72,7 +72,7 @@ const BudgetManager: React.FC<BudgetManagerProps> = ({ budgets, onAddBudget, tra
 
     toast({
       title: "Orçamento criado!",
-      description: `Orçamento de R$ ${parseFloat(formData.limit).toLocaleString('pt-BR')} para ${formData.category} definido.`,
+      description: `Orçamento de Kz ${parseFloat(formData.limit).toLocaleString('pt-BR')} para ${formData.category} definido.`,
     });
 
     setFormData({
@@ -140,7 +140,7 @@ const BudgetManager: React.FC<BudgetManagerProps> = ({ budgets, onAddBudget, tra
                 </div>
 
                 <div>
-                  <Label htmlFor="limit">Limite (R$)</Label>
+                  <Label htmlFor="limit">Limite (Kz)</Label>
                   <Input
                     id="limit"
                     type="number"
@@ -204,7 +204,7 @@ const BudgetManager: React.FC<BudgetManagerProps> = ({ budgets, onAddBudget, tra
                         {isNearLimit && <AlertTriangle className="w-4 h-4 text-amber-500" />}
                       </div>
                       <span className="text-sm text-gray-600">
-                        R$ {budget.spent.toLocaleString('pt-BR')} / R$ {budget.limit.toLocaleString('pt-BR')}
+                        Kz {budget.spent.toLocaleString('pt-BR')} / Kz {budget.limit.toLocaleString('pt-BR')}
                       </span>
                     </div>
                     
@@ -225,7 +225,7 @@ const BudgetManager: React.FC<BudgetManagerProps> = ({ budgets, onAddBudget, tra
                       </span>
                       {isOverBudget && (
                         <span className="text-red-600 font-medium">
-                          R$ {(budget.spent - budget.limit).toLocaleString('pt-BR')} acima do limite
+                          Kz {(budget.spent - budget.limit).toLocaleString('pt-BR')} acima do limite
                         </span>
                       )}
                     </div>
@@ -264,7 +264,7 @@ const BudgetManager: React.FC<BudgetManagerProps> = ({ budgets, onAddBudget, tra
                     </div>
                     <div className="text-right">
                       <p className="font-medium">
-                        R$ {budget.spent.toLocaleString('pt-BR')} / R$ {budget.limit.toLocaleString('pt-BR')}
+                        Kz {budget.spent.toLocaleString('pt-BR')} / Kz {budget.limit.toLocaleString('pt-BR')}
                       </p>
                       <p className={`text-sm ${percentage > 100 ? 'text-red-600' : percentage > 80 ? 'text-amber-600' : 'text-green-600'}`}>
                         {percentage.toFixed(1)}% utilizado

@@ -58,7 +58,7 @@ const InvestmentTracker: React.FC<InvestmentTrackerProps> = ({ investments, onAd
 
     toast({
       title: "Investimento adicionado!",
-      description: `Investimento de R$ ${parseFloat(formData.amount).toLocaleString('pt-BR')} em ${formData.type} registrado.`,
+      description: `Investimento de Kz ${parseFloat(formData.amount).toLocaleString('pt-BR')} em ${formData.type} registrado.`,
     });
 
     setFormData({
@@ -95,7 +95,7 @@ const InvestmentTracker: React.FC<InvestmentTrackerProps> = ({ investments, onAd
             <CardTitle className="text-sm font-medium">Total Investido</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">R$ {totalInvested.toLocaleString('pt-BR')}</div>
+            <div className="text-2xl font-bold">Kz {totalInvested.toLocaleString('pt-BR')}</div>
           </CardContent>
         </Card>
 
@@ -104,7 +104,7 @@ const InvestmentTracker: React.FC<InvestmentTrackerProps> = ({ investments, onAd
             <CardTitle className="text-sm font-medium">Valor Atual</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">R$ {totalCurrentValue.toLocaleString('pt-BR')}</div>
+            <div className="text-2xl font-bold">Kz {totalCurrentValue.toLocaleString('pt-BR')}</div>
           </CardContent>
         </Card>
 
@@ -114,7 +114,7 @@ const InvestmentTracker: React.FC<InvestmentTrackerProps> = ({ investments, onAd
           </CardHeader>
           <CardContent>
             <div className="text-xl font-bold">
-              R$ {totalReturn.toLocaleString('pt-BR')}
+              Kz {totalReturn.toLocaleString('pt-BR')}
             </div>
             <div className="text-sm opacity-90">
               {totalReturnPercentage > 0 ? '+' : ''}{totalReturnPercentage.toFixed(2)}%
@@ -151,7 +151,7 @@ const InvestmentTracker: React.FC<InvestmentTrackerProps> = ({ investments, onAd
                 </div>
 
                 <div>
-                  <Label htmlFor="amount">Valor Investido (R$)</Label>
+                  <Label htmlFor="amount">Valor Investido (Kz)</Label>
                   <Input
                     id="amount"
                     type="number"
@@ -233,14 +233,14 @@ const InvestmentTracker: React.FC<InvestmentTrackerProps> = ({ investments, onAd
                     
                     <div className="text-right">
                       <div className="font-semibold">
-                        R$ {investment.current_value.toLocaleString('pt-BR')}
+                        Kz {investment.current_value.toLocaleString('pt-BR')}
                       </div>
                       <div className="text-sm text-gray-600">
-                        Investido: R$ {investment.amount.toLocaleString('pt-BR')}
+                        Investido: Kz {investment.amount.toLocaleString('pt-BR')}
                       </div>
                       <div className={`text-sm font-medium ${returnPercentage >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {returnPercentage >= 0 ? '+' : ''}{returnPercentage.toFixed(2)}% 
-                        ({returnPercentage >= 0 ? '+' : ''}R$ {returnAmount.toLocaleString('pt-BR')})
+                        ({returnPercentage >= 0 ? '+' : ''}Kz {returnAmount.toLocaleString('pt-BR')})
                       </div>
                     </div>
                   </div>

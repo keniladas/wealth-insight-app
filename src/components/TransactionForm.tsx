@@ -70,7 +70,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ onAddTransaction }) =
 
     toast({
       title: "Transação adicionada!",
-      description: `${formData.type === 'income' ? 'Receita' : 'Despesa'} de R$ ${parseFloat(formData.amount).toLocaleString('pt-BR')} registrada com sucesso.`,
+      description: `${formData.type === 'income' ? 'Receita' : 'Despesa'} de Kz ${parseFloat(formData.amount).toLocaleString('pt-BR')} registrada com sucesso.`,
     });
 
     // Reset form
@@ -110,7 +110,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ onAddTransaction }) =
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="amount">Valor (R$)</Label>
+                  <Label htmlFor="amount">Valor (Kz)</Label>
                   <Input
                     id="amount"
                     type="number"

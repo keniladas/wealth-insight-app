@@ -177,7 +177,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, budgets, investments })
             <CardTitle className="text-sm font-medium">Total de Receitas</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">R$ {totalIncome.toLocaleString('pt-BR')}</div>
+            <div className="text-2xl font-bold">Kz {totalIncome.toLocaleString('pt-BR')}</div>
           </CardContent>
         </Card>
 
@@ -186,7 +186,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, budgets, investments })
             <CardTitle className="text-sm font-medium">Total de Despesas</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">R$ {totalExpenses.toLocaleString('pt-BR')}</div>
+            <div className="text-2xl font-bold">Kz {totalExpenses.toLocaleString('pt-BR')}</div>
           </CardContent>
         </Card>
 
@@ -195,7 +195,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, budgets, investments })
             <CardTitle className="text-sm font-medium">Saldo Líquido</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">R$ {netBalance.toLocaleString('pt-BR')}</div>
+            <div className="text-2xl font-bold">Kz {netBalance.toLocaleString('pt-BR')}</div>
           </CardContent>
         </Card>
       </div>
@@ -212,7 +212,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, budgets, investments })
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
-                <Tooltip formatter={(value) => `R$ ${Number(value).toLocaleString('pt-BR')}`} />
+                <Tooltip formatter={(value) => `Kz ${Number(value).toLocaleString('pt-BR')}`} />
                 <Line type="monotone" dataKey="income" stroke="#10b981" name="Receitas" strokeWidth={2} />
                 <Line type="monotone" dataKey="expenses" stroke="#ef4444" name="Despesas" strokeWidth={2} />
                 <Line type="monotone" dataKey="balance" stroke="#3b82f6" name="Saldo" strokeWidth={2} />
@@ -231,7 +231,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, budgets, investments })
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
-                <Tooltip formatter={(value) => `R$ ${Number(value).toLocaleString('pt-BR')}`} />
+                <Tooltip formatter={(value) => `Kz ${Number(value).toLocaleString('pt-BR')}`} />
                 <Bar dataKey="income" fill="#10b981" name="Receitas" />
                 <Bar dataKey="expenses" fill="#ef4444" name="Despesas" />
               </BarChart>
@@ -263,7 +263,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, budgets, investments })
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => `R$ ${Number(value).toLocaleString('pt-BR')}`} />
+                <Tooltip formatter={(value) => `Kz ${Number(value).toLocaleString('pt-BR')}`} />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -303,7 +303,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, budgets, investments })
                     <td className={`p-2 text-right font-medium ${
                       transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
                     }`}>
-                      {transaction.type === 'income' ? '+' : '-'}R$ {transaction.amount.toLocaleString('pt-BR')}
+                      {transaction.type === 'income' ? '+' : '-'}Kz {transaction.amount.toLocaleString('pt-BR')}
                     </td>
                   </tr>
                 ))}

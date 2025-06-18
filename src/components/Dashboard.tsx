@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -86,7 +85,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, budgets, investment
             <TrendingUp className="h-4 w-4" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">R$ {totalIncome.toLocaleString('pt-BR')}</div>
+            <div className="text-2xl font-bold">Kz {totalIncome.toLocaleString('pt-BR')}</div>
           </CardContent>
         </Card>
 
@@ -96,7 +95,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, budgets, investment
             <TrendingDown className="h-4 w-4" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">R$ {totalExpenses.toLocaleString('pt-BR')}</div>
+            <div className="text-2xl font-bold">Kz {totalExpenses.toLocaleString('pt-BR')}</div>
           </CardContent>
         </Card>
 
@@ -106,7 +105,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, budgets, investment
             <DollarSign className="h-4 w-4" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">R$ {balance.toLocaleString('pt-BR')}</div>
+            <div className="text-2xl font-bold">Kz {balance.toLocaleString('pt-BR')}</div>
           </CardContent>
         </Card>
 
@@ -116,7 +115,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, budgets, investment
             <Target className="h-4 w-4" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">R$ {totalInvestments.toLocaleString('pt-BR')}</div>
+            <div className="text-2xl font-bold">Kz {totalInvestments.toLocaleString('pt-BR')}</div>
           </CardContent>
         </Card>
       </div>
@@ -133,7 +132,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, budgets, investment
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
-                <Tooltip formatter={(value) => `R$ ${Number(value).toLocaleString('pt-BR')}`} />
+                <Tooltip formatter={(value) => `Kz ${Number(value).toLocaleString('pt-BR')}`} />
                 <Bar dataKey="income" fill="#10b981" name="Receitas" />
                 <Bar dataKey="expenses" fill="#ef4444" name="Despesas" />
               </BarChart>
@@ -162,7 +161,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, budgets, investment
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => `R$ ${Number(value).toLocaleString('pt-BR')}`} />
+                <Tooltip formatter={(value) => `Kz ${Number(value).toLocaleString('pt-BR')}`} />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -185,7 +184,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, budgets, investment
                     <div className="flex justify-between text-sm">
                       <span className="font-medium">{budget.category}</span>
                       <span>
-                        R$ {budget.spent.toLocaleString('pt-BR')} / R$ {budget.limit.toLocaleString('pt-BR')}
+                        Kz {budget.spent.toLocaleString('pt-BR')} / Kz {budget.limit.toLocaleString('pt-BR')}
                       </span>
                     </div>
                     <Progress 
