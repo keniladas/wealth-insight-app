@@ -18,7 +18,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, register } = useAuth();
   const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -26,18 +26,30 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setIsLoading(true);
 
     try {
-      const success = login(email, password);
-      if (success) {
+      console.log('Login form submitted with:', email);
+      const result = await login(email, password);
+      
+      if (result.success) {
         toast({
           title: "Login realizado com sucesso!",
           description: "Bem-vindo ao seu sistema financeiro.",
         });
         onClose();
+        // Reset form
+        setEmail('');
+        setPassword('');
+      } else {
+        toast({
+          title: "Erro no login",
+          description: result.error || "Verifique suas credenciais e tente novamente.",
+          variant: "destructive",
+        });
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Login error in component:', error);
       toast({
         title: "Erro no login",
-        description: "Verifique suas credenciais e tente novamente.",
+        description: error.message || "Verifique suas credenciais e tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -50,18 +62,30 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setIsLoading(true);
 
     try {
-      const success = login(email, password, name);
-      if (success) {
+      console.log('Register form submitted with:', email, name);
+      const result = await register(email, password, name);
+      
+      if (result.success) {
         toast({
           title: "Cadastro realizado com sucesso!",
-          description: "Sua conta foi criada. Bem-vindo!",
+          description: "Sua conta foi criada. Verifique seu email para confirmar.",
         });
-        onClose();
+        // Don't close modal immediately, user needs to confirm email
+        setEmail('');
+        setPassword('');
+        setName('');
+      } else {
+        toast({
+          title: "Erro no cadastro",
+          description: result.error || "Tente novamente.",
+          variant: "destructive",
+        });
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Registration error in component:', error);
       toast({
         title: "Erro no cadastro",
-        description: "Tente novamente.",
+        description: error.message || "Tente novamente.",
         variant: "destructive",
       });
     } finally {
