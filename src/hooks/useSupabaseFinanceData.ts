@@ -4,10 +4,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { Database } from '@/integrations/supabase/types';
 
-type Transaction = Database['public']['Tables']['transactions']['Row'];
-type Budget = Database['public']['Tables']['budgets']['Row'];
-type Investment = Database['public']['Tables']['investments']['Row'];
-type FinancialGoal = Database['public']['Tables']['financial_goals']['Row'];
+// Import the legacy types to maintain compatibility
+import type { Transaction, Budget, Investment, FinancialGoal } from './useFinanceData';
+
+type SupabaseTransaction = Database['public']['Tables']['transactions']['Row'];
+type SupabaseBudget = Database['public']['Tables']['budgets']['Row'];
+type SupabaseInvestment = Database['public']['Tables']['investments']['Row'];
+type SupabaseFinancialGoal = Database['public']['Tables']['financial_goals']['Row'];
 type Notification = Database['public']['Tables']['notifications']['Row'];
 
 export const useSupabaseFinanceData = (userId?: string) => {
@@ -18,6 +21,44 @@ export const useSupabaseFinanceData = (userId?: string) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  // Helper functions to convert Supabase types to legacy types
+  const convertTransaction = (supabaseTransaction: SupabaseTransaction): Transaction => ({
+    id: supabaseTransaction.id,
+    type: supabaseTransaction.type as 'income' | 'expense',
+    amount: Number(supabaseTransaction.amount),
+    category: supabaseTransaction.category,
+    description: supabaseTransaction.description || '',
+    date: supabaseTransaction.date,
+  });
+
+  const convertBudget = (supabaseBudget: SupabaseBudget): Budget => ({
+    id: supabaseBudget.id,
+    category: supabaseBudget.category,
+    limit: Number(supabaseBudget.limit_amount),
+    spent: Number(supabaseBudget.spent),
+    month: `${supabaseBudget.year}-${supabaseBudget.month.toString().padStart(2, '0')}`,
+  });
+
+  const convertInvestment = (supabaseInvestment: SupabaseInvestment): Investment => ({
+    id: supabaseInvestment.id,
+    type: supabaseInvestment.type,
+    amount: Number(supabaseInvestment.amount),
+    date: supabaseInvestment.date,
+    return_rate: Number(supabaseInvestment.return_rate),
+    current_value: Number(supabaseInvestment.current_value),
+  });
+
+  const convertGoal = (supabaseGoal: SupabaseFinancialGoal): FinancialGoal => ({
+    id: supabaseGoal.id,
+    title: supabaseGoal.title,
+    target_amount: Number(supabaseGoal.target_amount),
+    current_amount: Number(supabaseGoal.current_amount),
+    target_date: supabaseGoal.target_date,
+    category: supabaseGoal.category as 'savings' | 'investment' | 'debt_payment' | 'emergency_fund' | 'other',
+    description: supabaseGoal.description || '',
+    created_date: supabaseGoal.created_at,
+  });
 
   useEffect(() => {
     if (userId) {
@@ -54,7 +95,7 @@ export const useSupabaseFinanceData = (userId?: string) => {
       .order('date', { ascending: false });
     
     if (error) throw error;
-    setTransactions(data || []);
+    setTransactions((data || []).map(convertTransaction));
   };
 
   const loadBudgets = async () => {
@@ -64,7 +105,7 @@ export const useSupabaseFinanceData = (userId?: string) => {
       .order('created_at', { ascending: false });
     
     if (error) throw error;
-    setBudgets(data || []);
+    setBudgets((data || []).map(convertBudget));
   };
 
   const loadInvestments = async () => {
@@ -74,7 +115,7 @@ export const useSupabaseFinanceData = (userId?: string) => {
       .order('date', { ascending: false });
     
     if (error) throw error;
-    setInvestments(data || []);
+    setInvestments((data || []).map(convertInvestment));
   };
 
   const loadGoals = async () => {
@@ -84,7 +125,7 @@ export const useSupabaseFinanceData = (userId?: string) => {
       .order('created_at', { ascending: false });
     
     if (error) throw error;
-    setGoals(data || []);
+    setGoals((data || []).map(convertGoal));
   };
 
   const loadNotifications = async () => {
@@ -97,7 +138,7 @@ export const useSupabaseFinanceData = (userId?: string) => {
     setNotifications(data || []);
   };
 
-  const addTransaction = async (transaction: Omit<Transaction, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+  const addTransaction = async (transaction: Omit<Transaction, 'id'>) => {
     try {
       const { data, error } = await supabase
         .from('transactions')
@@ -110,7 +151,7 @@ export const useSupabaseFinanceData = (userId?: string) => {
 
       if (error) throw error;
 
-      setTransactions(prev => [data, ...prev]);
+      setTransactions(prev => [convertTransaction(data), ...prev]);
       await loadBudgets(); // Reload budgets to get updated spent amounts
 
       // Check for budget alerts
@@ -123,7 +164,7 @@ export const useSupabaseFinanceData = (userId?: string) => {
         description: `${transaction.type === 'income' ? 'Receita' : 'Despesa'} de Kz ${transaction.amount.toLocaleString('pt-BR')} registrada com sucesso.`,
       });
 
-      return data;
+      return convertTransaction(data);
     } catch (error) {
       console.error('Error adding transaction:', error);
       toast({
@@ -135,12 +176,17 @@ export const useSupabaseFinanceData = (userId?: string) => {
     }
   };
 
-  const addBudget = async (budget: Omit<Budget, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'spent'>) => {
+  const addBudget = async (budget: Omit<Budget, 'id' | 'spent'>) => {
     try {
+      const [year, month] = budget.month.split('-').map(Number);
+      
       const { data, error } = await supabase
         .from('budgets')
         .insert([{
-          ...budget,
+          category: budget.category,
+          limit_amount: budget.limit,
+          month,
+          year,
           user_id: userId!
         }])
         .select()
@@ -148,14 +194,14 @@ export const useSupabaseFinanceData = (userId?: string) => {
 
       if (error) throw error;
 
-      setBudgets(prev => [data, ...prev]);
+      setBudgets(prev => [convertBudget(data), ...prev]);
       
       toast({
         title: "Orçamento criado!",
-        description: `Orçamento de Kz ${budget.limit_amount.toLocaleString('pt-BR')} para ${budget.category} criado.`,
+        description: `Orçamento de Kz ${budget.limit.toLocaleString('pt-BR')} para ${budget.category} criado.`,
       });
 
-      return data;
+      return convertBudget(data);
     } catch (error) {
       console.error('Error adding budget:', error);
       toast({
@@ -167,12 +213,13 @@ export const useSupabaseFinanceData = (userId?: string) => {
     }
   };
 
-  const addInvestment = async (investment: Omit<Investment, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+  const addInvestment = async (investment: Omit<Investment, 'id' | 'current_value'>) => {
     try {
       const { data, error } = await supabase
         .from('investments')
         .insert([{
           ...investment,
+          current_value: investment.amount, // Initial value equals investment amount
           user_id: userId!
         }])
         .select()
@@ -180,14 +227,14 @@ export const useSupabaseFinanceData = (userId?: string) => {
 
       if (error) throw error;
 
-      setInvestments(prev => [data, ...prev]);
+      setInvestments(prev => [convertInvestment(data), ...prev]);
       
       toast({
         title: "Investimento adicionado!",
         description: `Investimento de Kz ${investment.amount.toLocaleString('pt-BR')} em ${investment.type} registrado.`,
       });
 
-      return data;
+      return convertInvestment(data);
     } catch (error) {
       console.error('Error adding investment:', error);
       toast({
@@ -199,12 +246,17 @@ export const useSupabaseFinanceData = (userId?: string) => {
     }
   };
 
-  const addGoal = async (goal: Omit<FinancialGoal, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+  const addGoal = async (goal: Omit<FinancialGoal, 'id' | 'created_date'>) => {
     try {
       const { data, error } = await supabase
         .from('financial_goals')
         .insert([{
-          ...goal,
+          title: goal.title,
+          target_amount: goal.target_amount,
+          current_amount: goal.current_amount,
+          target_date: goal.target_date,
+          category: goal.category,
+          description: goal.description,
           user_id: userId!
         }])
         .select()
@@ -212,14 +264,14 @@ export const useSupabaseFinanceData = (userId?: string) => {
 
       if (error) throw error;
 
-      setGoals(prev => [data, ...prev]);
+      setGoals(prev => [convertGoal(data), ...prev]);
       
       toast({
         title: "Meta criada!",
         description: `Meta "${goal.title}" de Kz ${goal.target_amount.toLocaleString('pt-BR')} criada.`,
       });
 
-      return data;
+      return convertGoal(data);
     } catch (error) {
       console.error('Error adding goal:', error);
       toast({
@@ -247,7 +299,7 @@ export const useSupabaseFinanceData = (userId?: string) => {
 
       if (error) throw error;
 
-      setGoals(prev => prev.map(g => g.id === goalId ? data : g));
+      setGoals(prev => prev.map(g => g.id === goalId ? convertGoal(data) : g));
       
       toast({
         title: "Progresso atualizado!",
@@ -269,15 +321,14 @@ export const useSupabaseFinanceData = (userId?: string) => {
     
     const budget = budgets.find(b => 
       b.category === category && 
-      b.month === currentMonth && 
-      b.year === currentYear
+      b.month === `${currentYear}-${currentMonth.toString().padStart(2, '0')}`
     );
 
-    if (budget && (budget.spent + expenseAmount) > budget.limit_amount) {
+    if (budget && (budget.spent + expenseAmount) > budget.limit) {
       await createNotification({
         type: 'budget_alert',
         title: 'Orçamento Excedido!',
-        message: `Você excedeu o orçamento de ${category}. Limite: Kz ${budget.limit_amount.toLocaleString('pt-BR')}, Gasto: Kz ${(budget.spent + expenseAmount).toLocaleString('pt-BR')}.`
+        message: `Você excedeu o orçamento de ${category}. Limite: Kz ${budget.limit.toLocaleString('pt-BR')}, Gasto: Kz ${(budget.spent + expenseAmount).toLocaleString('pt-BR')}.`
       });
     }
   };
