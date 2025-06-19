@@ -9,12 +9,19 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, TrendingUp, TrendingDown } from 'lucide-react';
-import type { Database } from '@/integrations/supabase/types';
 
-type Transaction = Database['public']['Tables']['transactions']['Row'];
+// Use the legacy Transaction type for compatibility with existing components
+type Transaction = {
+  id: string;
+  type: 'income' | 'expense';
+  amount: number;
+  category: string;
+  description: string;
+  date: string;
+};
 
 interface TransactionFormProps {
-  onAddTransaction: (transaction: Omit<Transaction, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => Promise<Transaction>;
+  onAddTransaction: (transaction: Omit<Transaction, 'id'>) => Promise<Transaction>;
 }
 
 const TransactionForm: React.FC<TransactionFormProps> = ({ onAddTransaction }) => {
@@ -68,7 +75,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ onAddTransaction }) =
         type: formData.type,
         amount: parseFloat(formData.amount),
         category: formData.category,
-        description: formData.description || null,
+        description: formData.description || '',
         date: formData.date,
       };
 
