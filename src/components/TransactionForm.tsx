@@ -7,12 +7,14 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Transaction } from '@/hooks/useFinanceData';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, TrendingUp, TrendingDown } from 'lucide-react';
+import type { Database } from '@/integrations/supabase/types';
+
+type Transaction = Database['public']['Tables']['transactions']['Row'];
 
 interface TransactionFormProps {
-  onAddTransaction: (transaction: Omit<Transaction, 'id'>) => void;
+  onAddTransaction: (transaction: Omit<Transaction, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => Promise<Transaction>;
 }
 
 const TransactionForm: React.FC<TransactionFormProps> = ({ onAddTransaction }) => {
@@ -24,6 +26,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ onAddTransaction }) =
     date: new Date().toISOString().split('T')[0],
   });
   
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   const incomeCategories = [
@@ -46,7 +49,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ onAddTransaction }) =
     'Outros'
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.amount || !formData.category) {
@@ -58,29 +61,32 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ onAddTransaction }) =
       return;
     }
 
-    const transaction: Omit<Transaction, 'id'> = {
-      type: formData.type,
-      amount: parseFloat(formData.amount),
-      category: formData.category,
-      description: formData.description,
-      date: formData.date,
-    };
+    setLoading(true);
 
-    onAddTransaction(transaction);
+    try {
+      const transaction = {
+        type: formData.type,
+        amount: parseFloat(formData.amount),
+        category: formData.category,
+        description: formData.description || null,
+        date: formData.date,
+      };
 
-    toast({
-      title: "Transação adicionada!",
-      description: `${formData.type === 'income' ? 'Receita' : 'Despesa'} de Kz ${parseFloat(formData.amount).toLocaleString('pt-BR')} registrada com sucesso.`,
-    });
+      await onAddTransaction(transaction);
 
-    // Reset form
-    setFormData({
-      type: 'expense',
-      amount: '',
-      category: '',
-      description: '',
-      date: new Date().toISOString().split('T')[0],
-    });
+      // Reset form
+      setFormData({
+        type: 'expense',
+        amount: '',
+        category: '',
+        description: '',
+        date: new Date().toISOString().split('T')[0],
+      });
+    } catch (error) {
+      console.error('Error adding transaction:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const categories = formData.type === 'income' ? incomeCategories : expenseCategories;
@@ -164,13 +170,14 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ onAddTransaction }) =
 
               <Button 
                 type="submit" 
+                disabled={loading}
                 className={`w-full ${
                   formData.type === 'income' 
                     ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700' 
                     : 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700'
                 }`}
               >
-                Adicionar {formData.type === 'income' ? 'Receita' : 'Despesa'}
+                {loading ? 'Salvando...' : `Adicionar ${formData.type === 'income' ? 'Receita' : 'Despesa'}`}
               </Button>
             </form>
           </Tabs>

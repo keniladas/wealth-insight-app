@@ -11,10 +11,12 @@ import Reports from '@/components/Reports';
 import FinancialGoals from '@/components/FinancialGoals';
 import FinancialCalculator from '@/components/FinancialCalculator';
 import FinancialAlerts from '@/components/FinancialAlerts';
+import NotificationCenter from '@/components/NotificationCenter';
 import AuthModal from '@/components/AuthModal';
-import { useFinanceData } from '@/hooks/useFinanceData';
+import { useSupabaseFinanceData } from '@/hooks/useSupabaseFinanceData';
 import { useAuth } from '@/hooks/useAuth';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, Bell } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 const Index = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -24,16 +26,19 @@ const Index = () => {
     budgets, 
     investments, 
     goals,
+    notifications,
+    loading: dataLoading,
     addTransaction, 
     addBudget, 
     addInvestment,
     addGoal,
-    updateGoalProgress
-  } = useFinanceData();
+    updateGoalProgress,
+    markNotificationAsRead
+  } = useSupabaseFinanceData(user?.id);
 
   console.log('Index render - User:', user, 'Loading:', loading);
 
-  if (loading) {
+  if (loading || dataLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
         <div className="text-center">
@@ -117,6 +122,8 @@ const Index = () => {
     );
   }
 
+  const unreadNotifications = notifications.filter(n => !n.is_read).length;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
@@ -145,7 +152,7 @@ const Index = () => {
 
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid w-full grid-cols-8 mb-8 bg-white/80 backdrop-blur-sm">
+          <TabsList className="grid w-full grid-cols-9 mb-8 bg-white/80 backdrop-blur-sm">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="transactions">Transações</TabsTrigger>
             <TabsTrigger value="budget">Orçamento</TabsTrigger>
@@ -153,6 +160,15 @@ const Index = () => {
             <TabsTrigger value="goals">Metas</TabsTrigger>
             <TabsTrigger value="calculator">Calculadora</TabsTrigger>
             <TabsTrigger value="alerts">Alertas</TabsTrigger>
+            <TabsTrigger value="notifications" className="relative">
+              <Bell className="w-4 h-4 mr-1" />
+              Notificações
+              {unreadNotifications > 0 && (
+                <Badge variant="destructive" className="absolute -top-2 -right-2 text-xs px-1.5 py-0.5">
+                  {unreadNotifications}
+                </Badge>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="reports">Relatórios</TabsTrigger>
           </TabsList>
 
@@ -200,6 +216,13 @@ const Index = () => {
               transactions={transactions}
               budgets={budgets}
               goals={goals}
+            />
+          </TabsContent>
+
+          <TabsContent value="notifications">
+            <NotificationCenter 
+              notifications={notifications}
+              onMarkAsRead={markNotificationAsRead}
             />
           </TabsContent>
 
