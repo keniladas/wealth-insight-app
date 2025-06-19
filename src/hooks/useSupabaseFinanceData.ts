@@ -22,6 +22,8 @@ export const useSupabaseFinanceData = (userId?: string) => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
+  console.log('useSupabaseFinanceData - userId:', userId, 'loading:', loading);
+
   // Helper functions to convert Supabase types to legacy types
   const convertTransaction = (supabaseTransaction: SupabaseTransaction): Transaction => ({
     id: supabaseTransaction.id,
@@ -61,13 +63,18 @@ export const useSupabaseFinanceData = (userId?: string) => {
   });
 
   useEffect(() => {
+    console.log('useSupabaseFinanceData - useEffect triggered, userId:', userId);
     if (userId) {
       loadAllData();
+    } else {
+      console.log('useSupabaseFinanceData - No userId, setting loading to false');
+      setLoading(false);
     }
   }, [userId]);
 
   const loadAllData = async () => {
     try {
+      console.log('useSupabaseFinanceData - Starting to load all data');
       setLoading(true);
       await Promise.all([
         loadTransactions(),
@@ -76,6 +83,7 @@ export const useSupabaseFinanceData = (userId?: string) => {
         loadGoals(),
         loadNotifications()
       ]);
+      console.log('useSupabaseFinanceData - Finished loading all data');
     } catch (error) {
       console.error('Error loading data:', error);
       toast({
@@ -89,57 +97,68 @@ export const useSupabaseFinanceData = (userId?: string) => {
   };
 
   const loadTransactions = async () => {
+    console.log('useSupabaseFinanceData - Loading transactions');
     const { data, error } = await supabase
       .from('transactions')
       .select('*')
       .order('date', { ascending: false });
     
+    console.log('useSupabaseFinanceData - Transactions result:', { data, error });
     if (error) throw error;
     setTransactions((data || []).map(convertTransaction));
   };
 
   const loadBudgets = async () => {
+    console.log('useSupabaseFinanceData - Loading budgets');
     const { data, error } = await supabase
       .from('budgets')
       .select('*')
       .order('created_at', { ascending: false });
     
+    console.log('useSupabaseFinanceData - Budgets result:', { data, error });
     if (error) throw error;
     setBudgets((data || []).map(convertBudget));
   };
 
   const loadInvestments = async () => {
+    console.log('useSupabaseFinanceData - Loading investments');
     const { data, error } = await supabase
       .from('investments')
       .select('*')
       .order('date', { ascending: false });
     
+    console.log('useSupabaseFinanceData - Investments result:', { data, error });
     if (error) throw error;
     setInvestments((data || []).map(convertInvestment));
   };
 
   const loadGoals = async () => {
+    console.log('useSupabaseFinanceData - Loading goals');
     const { data, error } = await supabase
       .from('financial_goals')
       .select('*')
       .order('created_at', { ascending: false });
     
+    console.log('useSupabaseFinanceData - Goals result:', { data, error });
     if (error) throw error;
     setGoals((data || []).map(convertGoal));
   };
 
   const loadNotifications = async () => {
+    console.log('useSupabaseFinanceData - Loading notifications');
     const { data, error } = await supabase
       .from('notifications')
       .select('*')
       .order('created_at', { ascending: false });
     
+    console.log('useSupabaseFinanceData - Notifications result:', { data, error });
     if (error) throw error;
     setNotifications(data || []);
   };
 
   const addTransaction = async (transaction: Omit<Transaction, 'id'>) => {
     try {
+      console.log('useSupabaseFinanceData - Adding transaction:', transaction);
       const { data, error } = await supabase
         .from('transactions')
         .insert([{

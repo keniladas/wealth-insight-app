@@ -14,19 +14,25 @@ export const useAuth = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
+  console.log('useAuth - current state:', { user, session, loading });
+
   useEffect(() => {
+    console.log('useAuth - Setting up auth state listener');
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('Auth state changed:', event, session);
+        console.log('useAuth - Auth state changed:', event, session);
         setSession(session);
         if (session?.user) {
-          setUser({
+          const authUser = {
             id: session.user.id,
             name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuário',
             email: session.user.email || '',
-          });
+          };
+          console.log('useAuth - Setting user:', authUser);
+          setUser(authUser);
         } else {
+          console.log('useAuth - Clearing user');
           setUser(null);
         }
         setLoading(false);
@@ -34,15 +40,18 @@ export const useAuth = () => {
     );
 
     // Check for existing session
+    console.log('useAuth - Checking for existing session');
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session check:', session);
+      console.log('useAuth - Initial session check:', session);
       setSession(session);
       if (session?.user) {
-        setUser({
+        const authUser = {
           id: session.user.id,
           name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuário',
           email: session.user.email || '',
-        });
+        };
+        console.log('useAuth - Setting initial user:', authUser);
+        setUser(authUser);
       }
       setLoading(false);
     });
@@ -52,7 +61,7 @@ export const useAuth = () => {
 
   const login = async (email: string, password: string, name?: string) => {
     try {
-      console.log('Attempting login with:', email);
+      console.log('useAuth - Attempting login with:', email);
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -60,21 +69,21 @@ export const useAuth = () => {
       });
 
       if (error) {
-        console.error('Login error:', error);
+        console.error('useAuth - Login error:', error);
         throw error;
       }
 
-      console.log('Login successful:', data);
+      console.log('useAuth - Login successful:', data);
       return { success: true, error: null };
     } catch (error: any) {
-      console.error('Login failed:', error);
+      console.error('useAuth - Login failed:', error);
       return { success: false, error: error.message };
     }
   };
 
   const register = async (email: string, password: string, name: string) => {
     try {
-      console.log('Attempting registration with:', email, name);
+      console.log('useAuth - Attempting registration with:', email, name);
       
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -87,29 +96,29 @@ export const useAuth = () => {
       });
 
       if (error) {
-        console.error('Registration error:', error);
+        console.error('useAuth - Registration error:', error);
         throw error;
       }
 
-      console.log('Registration successful:', data);
+      console.log('useAuth - Registration successful:', data);
       return { success: true, error: null };
     } catch (error: any) {
-      console.error('Registration failed:', error);
+      console.error('useAuth - Registration failed:', error);
       return { success: false, error: error.message };
     }
   };
 
   const logout = async () => {
     try {
-      console.log('Attempting logout');
+      console.log('useAuth - Attempting logout');
       const { error } = await supabase.auth.signOut();
       if (error) {
-        console.error('Logout error:', error);
+        console.error('useAuth - Logout error:', error);
         throw error;
       }
-      console.log('Logout successful');
+      console.log('useAuth - Logout successful');
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error('useAuth - Logout failed:', error);
     }
   };
 
